@@ -170,6 +170,48 @@ void handle_right_click(int mouse_x, int mouse_y) {
     }
 }
 
+void draw_game() {
+    SDL_SetRenderDrawColor(renderer, 192, 192, 192, 255);
+    SDL_RenderClear(renderer);
+    
+    for (int y = 0; y < GRID_HEIGHT; y++) {
+        for (int x = 0; x < GRID_WIDTH; x++) {
+            int px = 20 + x * CELL_SIZE;
+            int py = 80 + y * CELL_SIZE;
+            SDL_Rect rect = {px, py, CELL_SIZE - 2, CELL_SIZE - 2};
+            
+            Cell* cell = &game.grid[y][x];
+            
+            if (cell->state == CELL_HIDDEN) {
+                SDL_SetRenderDrawColor(renderer, 180, 180, 180, 255);
+                SDL_RenderFillRect(renderer, &rect);
+                SDL_SetRenderDrawColor(renderer, 220, 220, 220, 255);
+                SDL_Rect highlight = {px, py, CELL_SIZE - 2, 2};
+                SDL_RenderFillRect(renderer, &highlight);
+                highlight.w = 2;
+                highlight.h = CELL_SIZE - 2;
+                SDL_RenderFillRect(renderer, &highlight);
+            } else if (cell->state == CELL_FLAGGED) {
+                SDL_SetRenderDrawColor(renderer, 180, 180, 180, 255);
+                SDL_RenderFillRect(renderer, &rect);
+            } else if (cell->state == CELL_REVEALED) {
+                if (cell->is_mine) {
+                    SDL_SetRenderDrawColor(renderer, 255, 100, 100, 255);
+                    SDL_RenderFillRect(renderer, &rect);
+                } else {
+                    SDL_SetRenderDrawColor(renderer, 220, 220, 220, 255);
+                    SDL_RenderFillRect(renderer, &rect);
+                }
+            }
+            
+            SDL_SetRenderDrawColor(renderer, 128, 128, 128, 255);
+            SDL_RenderDrawRect(renderer, &rect);
+        }
+    }
+    
+    SDL_RenderPresent(renderer);
+}
+
 int main(int argc, char* argv[]) {
     srand((unsigned int)time(NULL));
     
@@ -199,9 +241,7 @@ int main(int argc, char* argv[]) {
             }
         }
         
-        SDL_SetRenderDrawColor(renderer, 192, 192, 192, 255);
-        SDL_RenderClear(renderer);
-        SDL_RenderPresent(renderer);
+        draw_game();
         SDL_Delay(16);
     }
     
